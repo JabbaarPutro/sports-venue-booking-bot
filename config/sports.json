@@ -1,0 +1,46 @@
+{
+  "sports": [
+    {
+      "name": "Futsal",
+      "keywords": ["futsal", "lapangan futsal", "futsal court"],
+      "icon": "⚽",
+      "category": "indoor"
+    },
+    {
+      "name": "Mini Soccer",
+      "keywords": ["mini soccer", "lapangan mini soccer", "sepak bola mini"],
+      "icon": "⚽",
+      "category": "outdoor"
+    },
+    {
+      "name": "Badminton",
+      "keywords": ["badminton", "bulutangkis", "lapangan badminton"],
+      "icon": "🏸",
+      "category": "indoor"
+    },
+    {
+      "name": "Tennis",
+      "keywords": ["tennis", "tenis", "lapangan tennis"],
+      "icon": "🎾",
+      "category": "outdoor"
+    },
+    {
+      "name": "Padel",
+      "keywords": ["padel", "lapangan padel", "padel court"],
+      "icon": "🎾",
+      "category": "outdoor"
+    },
+    {
+      "name": "Basketball",
+      "keywords": ["basketball", "basket", "lapangan basket"],
+      "icon": "🏀",
+      "category": "outdoor"
+    },
+    {
+      "name": "Volleyball",
+      "keywords": ["volleyball", "voli", "lapangan voli"],
+      "icon": "🏐",
+      "category": "outdoor"
+    }
+  ]
+}

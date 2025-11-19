@@ -1,0 +1,124 @@
+{
+  "name": "2. Venue Search & Parallel Check",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+        "options": {
+          "queryParametersUi": {
+            "parameter": [
+              {
+                "name": "query",
+                "value": "={{$json.sport}} {{$json.location}}"
+              },
+              {
+                "name": "key",
+                "value": "={{$env.GOOGLE_PLACES_API_KEY}}"
+              },
+              {
+                "name": "language",
+                "value": "id"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Search Google Places",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse and filter venues\nconst results = $input.item.json.results || [];\n\nconst venues = results\n  .filter(place => place.rating >= 4.0)\n  .slice(0, 5)\n  .map(place => ({\n    place_id: place.place_id,\n    name: place.name,\n    address: place.formatted_address,\n    rating: place.rating,\n    latitude: place.geometry.location.lat,\n    longitude: place.geometry.location.lng\n  }));\n\nreturn venues.map(v => ({ json: v }));"
+      },
+      "name": "Filter Top 5 Venues",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "name": "Parallel Check",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/check-availability",
+        "options": {
+          "bodyContentType": "json"
+        }
+      },
+      "name": "Check Availability",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Search Google Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Google Places": {
+      "main": [
+        [
+          {
+            "node": "Filter Top 5 Venues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Top 5 Venues": {
+      "main": [
+        [
+          {
+            "node": "Parallel Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parallel Check": {
+      "main": [
+        [
+          {
+            "node": "Check Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "2",
+  "meta": {
+    "instanceId": "sports-venue-booking-bot"
+  },
+  "tags": []
+}
