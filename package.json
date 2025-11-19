@@ -1,7 +1,7 @@
 {
   "name": "sports-venue-booking-bot",
   "version": "1.0.0",
-  "description": "AI-powered Telegram bot untuk booking venue olahraga dengan Google Places API dan OLLAMA AI",
+  "description": "AI-powered Telegram bot untuk booking venue olahraga dengan Google Places API dan Google Gemini AI",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -11,7 +11,7 @@
   "keywords": [
     "telegram-bot",
     "ai",
-    "ollama",
+    "google-gemini",
     "google-places",
     "sports",
     "venue-booking",
@@ -20,15 +20,16 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "telegraf": "^4.15.0",
-    "axios": "^1.6.0",
+    "@google/generative-ai": "^0.1.3",
     "@google/maps": "^1.1.3",
-    "mysql2": "^3.6.5",
+    "axios": "^1.6.0",
+    "chrono-node": "^2.7.5",
     "dotenv": "^16.3.1",
-    "nodemailer": "^6.9.7",
-    "node-cron": "^3.0.3",
     "moment": "^2.29.4",
-    "chrono-node": "^2.7.5"
+    "mysql2": "^3.6.5",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.7",
+    "telegraf": "^4.15.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
