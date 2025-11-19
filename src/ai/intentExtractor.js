@@ -5,20 +5,28 @@ const sportsConfig = require('../../config/sports.json');
 
 class IntentExtractor {
     constructor() {
-        this.gemini = new GeminiClient();
+        try {
+            this.gemini = new GeminiClient();
+        } catch (error) {
+            Logger.warn('Gemini client initialization failed:', error.message);
+            Logger.info('Will use rule-based extraction as fallback');
+            this.gemini = null;
+        }
     }
 
     async extractIntent(message) {
         Logger.info('Extracting intent from message:', message);
 
-        // Try Gemini first
-        const geminiAvailable = await this.gemini.isAvailable();
-        
-        if (geminiAvailable) {
-            try {
-                return await this.extractWithGemini(message);
-            } catch (error) {
-                Logger.warn('Gemini extraction failed, falling back to rule-based:', error.message);
+        // Try Gemini first if available
+        if (this.gemini) {
+            const geminiAvailable = await this.gemini.isAvailable();
+            
+            if (geminiAvailable) {
+                try {
+                    return await this.extractWithGemini(message);
+                } catch (error) {
+                    Logger.warn('Gemini extraction failed, falling back to rule-based:', error.message);
+                }
             }
         }
 
