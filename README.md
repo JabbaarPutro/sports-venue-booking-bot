@@ -1,6 +1,6 @@
 # 🎯 Sports Venue Booking Bot
 
-Bot Telegram berbasis AI untuk mencari, merekomendasikan, dan booking venue olahraga secara otomatis menggunakan **Google Places API**, **OLLAMA AI**, dan **MySQL**.
+Bot Telegram berbasis AI untuk mencari, merekomendasikan, dan booking venue olahraga secara otomatis menggunakan **Google Places API**, **Google Gemini AI**, dan **MySQL**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)](https://nodejs.org/)
@@ -8,7 +8,7 @@ Bot Telegram berbasis AI untuk mencari, merekomendasikan, dan booking venue olah
 ## ✨ Fitur Utama
 
 - ✅ **100% Real-Time Google Places** - Semua data venue dari Google API
-- ✅ **AI Natural Language Processing** - OLLAMA AI untuk memahami pesan user
+- ✅ **AI Natural Language Processing** - Google Gemini AI untuk memahami pesan user
 - ✅ **Multi-Sport Support** - Tennis, Padel, Futsal, Mini Soccer, Badminton, Basketball, Volleyball
 - ✅ **Parallel Check 5 Venue** - Cek ketersediaan 5 venue sekaligus
 - ✅ **Auto-Alternative Search** - Bot otomatis cari alternatif jika venue penuh
@@ -21,7 +21,7 @@ Bot Telegram berbasis AI untuk mencari, merekomendasikan, dan booking venue olah
 
 - **Backend**: Node.js
 - **Bot Framework**: Telegraf (Telegram Bot)
-- **AI**: OLLAMA AI (Local LLM)
+- **AI**: Google Gemini AI (Cloud-based LLM)
 - **API**: Google Places API
 - **Database**: MySQL (XAMPP)
 - **Automation**: n8n workflows
@@ -34,7 +34,7 @@ Sebelum memulai, pastikan Anda memiliki:
 
 - Node.js (v14 atau lebih tinggi)
 - MySQL (XAMPP atau MySQL Server)
-- OLLAMA AI (terinstall di local)
+- Google Gemini API Key (gratis dari https://makersuite.google.com/app/apikey)
 - Telegram Bot Token (dari @BotFather)
 - Google Places API Key (gratis)
 - Gmail Account (untuk email notifications)
@@ -78,8 +78,7 @@ Edit file `.env` dengan credentials Anda:
 ```env
 TELEGRAM_BOT_TOKEN=your_bot_token_here
 GOOGLE_PLACES_API_KEY=your_google_api_key_here
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama2
+GEMINI_API_KEY=your_gemini_api_key_here
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=
@@ -99,6 +98,42 @@ Atau untuk development dengan auto-reload:
 ```bash
 npm run dev
 ```
+
+## 🤖 Setup Google Gemini AI (GRATIS)
+
+### 1. Dapatkan API Key
+
+1. Buka [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Login dengan Google Account
+3. Klik **"Get API Key"** atau **"Create API Key"**
+4. Copy API Key yang diberikan
+
+### 2. Masukkan ke Environment Variables
+
+Edit file `.env`:
+```env
+GEMINI_API_KEY=AIzaSy...your_api_key
+```
+
+### 3. Selesai! 🎉
+
+Tidak perlu install software tambahan, langsung bisa jalan!
+
+#### 📊 Quota Gratis Gemini:
+- ✅ 60 requests per minute
+- ✅ 1500 requests per day  
+- ✅ Lebih dari cukup untuk bot booking venue
+
+#### 🆚 Keuntungan Google Gemini:
+
+| Feature | Gemini |
+|---------|--------|
+| Setup | ✅ Cuma API key |
+| Speed | ✅ Super cepat |
+| Akurasi | ✅ Sangat bagus untuk Bahasa Indonesia |
+| Cost | ✅ Gratis (online) |
+| Platform | ✅ Cross-platform |
+| Installation | ✅ Tidak perlu install apapun |
 
 ## 📖 Cara Setup Lengkap
 
@@ -170,7 +205,7 @@ Anda akan menerima:
 ```
 User: "Cari lapangan futsal di Jakarta Selatan besok jam 18:00"
   ↓
-Bot: [Ekstrak intent dengan OLLAMA AI]
+Bot: [Ekstrak intent dengan Google Gemini AI]
   Sport: Futsal
   Location: Jakarta Selatan
   Date: 2025-11-20
@@ -268,12 +303,12 @@ Proyek ini menyediakan 4 workflow n8n yang ready-to-import:
 2. Cek credentials database di `.env`
 3. Pastikan database sudah dibuat: `sports_venue_booking`
 
-### OLLAMA AI tidak berfungsi
+### Gemini AI tidak berfungsi
 
-1. Pastikan OLLAMA sudah terinstall dan running
-2. Test: `curl http://localhost:11434/api/tags`
-3. Pull model: `ollama pull llama2`
-4. Jika OLLAMA tidak tersedia, bot akan fallback ke rule-based extraction
+1. Pastikan GEMINI_API_KEY sudah diisi di file `.env`
+2. Cek API key valid di https://makersuite.google.com/app/apikey
+3. Pastikan tidak ada typo atau karakter tambahan pada API key
+4. Jika Gemini tidak tersedia, bot akan fallback ke rule-based extraction
 
 ### Google Places API error
 
@@ -310,7 +345,7 @@ Created with ❤️ for the sports community in Indonesia
 
 - [Telegraf](https://telegraf.js.org/) - Telegram Bot framework
 - [Google Places API](https://developers.google.com/maps/documentation/places/web-service/overview)
-- [OLLAMA](https://ollama.ai/) - Local LLM
+- [Google Gemini](https://ai.google.dev/) - Generative AI
 - [n8n](https://n8n.io/) - Workflow automation
 
 ---

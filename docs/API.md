@@ -6,7 +6,7 @@ Dokumentasi lengkap untuk semua API dan integrasi yang digunakan dalam Sports Ve
 
 - [Internal Architecture](#internal-architecture)
 - [Google Places API](#google-places-api)
-- [OLLAMA AI API](#ollama-ai-api)
+- [Google Gemini AI API](#google-gemini-ai-api)
 - [Telegram Bot API](#telegram-bot-api)
 - [Database Queries](#database-queries)
 
@@ -19,7 +19,7 @@ Dokumentasi lengkap untuk semua API dan integrasi yang digunakan dalam Sports Ve
 ```
 src/
 ├── bot/               # Telegram bot handlers
-├── ai/                # OLLAMA AI integration
+├── ai/                # Google Gemini AI integration
 ├── api/               # External API integrations
 ├── services/          # Business logic services
 ├── notifications/     # Email & Telegram notifications
@@ -30,7 +30,7 @@ src/
 ### Service Dependencies
 
 ```
-TelegramBot → MessageHandler → IntentExtractor → OllamaClient
+TelegramBot → MessageHandler → IntentExtractor → GeminiClient
                             ↓
                         VenueSearch → GooglePlacesAPI
                             ↓
@@ -189,94 +189,59 @@ class GooglePlacesAPI {
 
 ---
 
-## OLLAMA AI API
+## Google Gemini AI API
 
-### Generate Completion
+### Generate Content
 
-**Endpoint**: `http://localhost:11434/api/generate`
+**API**: Google Generative AI SDK
 
-**Method**: POST
+**Model**: `gemini-pro`
 
-**Request Body**:
-```json
-{
-  "model": "llama2",
-  "prompt": "Extract booking info from: 'Cari lapangan futsal di Jakarta besok jam 18:00'",
-  "stream": false,
-  "options": {
-    "temperature": 0.7
-  }
-}
+**Setup**:
+```javascript
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+const genAI = new GoogleGenerativeAI(apiKey);
+const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 ```
 
-**Response**:
-```json
-{
-  "model": "llama2",
-  "response": "{\"sport\":\"Futsal\",\"location\":\"Jakarta\",\"date\":\"2025-11-20\",\"time\":\"18:00\"}",
-  "done": true
-}
+**Request**:
+```javascript
+const result = await model.generateContent(prompt);
+const response = await result.response;
+const text = response.text();
 ```
 
-### Chat Completion
-
-**Endpoint**: `http://localhost:11434/api/chat`
-
-**Method**: POST
-
-**Request Body**:
+**Example Response**:
 ```json
 {
-  "model": "llama2",
-  "messages": [
-    {
-      "role": "user",
-      "content": "Extract sport, location, date, time from: 'Booking tennis Bandung minggu depan'"
-    }
-  ],
-  "stream": false
-}
-```
-
-### Check Model Availability
-
-**Endpoint**: `http://localhost:11434/api/tags`
-
-**Method**: GET
-
-**Response**:
-```json
-{
-  "models": [
-    {
-      "name": "llama2:latest",
-      "size": 3825819519
-    }
-  ]
+  "sport": "Futsal",
+  "location": "Jakarta",
+  "date": "2025-11-20",
+  "time": "18:00"
 }
 ```
 
 ### API Usage in Code
 
 ```javascript
-// src/ai/ollamaClient.js
-class OllamaClient {
+// src/ai/geminiClient.js
+class GeminiClient {
+  async generateResponse(prompt) {
+    const result = await this.model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  }
+
   async extractJSON(prompt) {
-    const response = await axios.post(
-      `${this.baseUrl}/api/generate`,
-      {
-        model: this.model,
-        prompt: prompt,
-        stream: false,
-        options: { temperature: 0.3 }
-      }
-    );
+    const response = await this.generateResponse(prompt);
     
-    const jsonMatch = response.data.response.match(/\{[\s\S]*\}/);
+    // Try to extract JSON from response
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
-    return null;
+    
+    return JSON.parse(response);
   }
 }
 ```
@@ -298,10 +263,33 @@ Extract these fields and return as JSON:
 Return only valid JSON without explanation.
 `;
 
-  const result = await this.ollama.extractJSON(prompt);
+  const result = await this.gemini.extractJSON(prompt);
   return this.validateAndEnrichIntent(result);
 }
 ```
+
+### Error Handling
+
+```javascript
+try {
+  const intent = await gemini.extractIntent(userMessage);
+} catch (error) {
+  if (error.message.includes('API key')) {
+    // Handle invalid or missing API key
+  } else if (error.message.includes('quota')) {
+    // Handle quota exceeded
+  } else {
+    Logger.error('Gemini API error:', error);
+  }
+}
+```
+
+### API Limits (Free Tier)
+
+- **Requests per minute**: 60
+- **Requests per day**: 1500
+- **Model**: gemini-pro (text only)
+- **Cost**: Completely free
 
 ---
 
@@ -623,11 +611,13 @@ const preview = await bookingService.getVenuePreview('ChIJ...');
 - **Place Photos**: $7 per 1000 requests
 - **Recommended**: ~6,000 requests per month free
 
-### OLLAMA AI
+### Google Gemini AI
 
-- **Local**: No limits
-- **Resource**: Depends on your machine (RAM, CPU)
-- **Model Size**: llama2 = ~3.8GB
+- **Free Tier**: Completely free
+- **Requests per minute**: 60
+- **Requests per day**: 1500
+- **Model**: gemini-pro
+- **No credit card required**
 
 ### Telegram Bot API
 

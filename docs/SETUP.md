@@ -6,7 +6,7 @@ Panduan step-by-step untuk setup Sports Venue Booking Bot dari awal.
 
 1. [Install Node.js](#1-install-nodejs)
 2. [Install dan Setup XAMPP](#2-install-dan-setup-xampp)
-3. [Install OLLAMA AI](#3-install-ollama-ai)
+3. [Setup Google Gemini AI](#3-setup-google-gemini-ai)
 4. [Setup Telegram Bot](#4-setup-telegram-bot)
 5. [Dapatkan Google Places API Key](#5-dapatkan-google-places-api-key)
 6. [Setup Gmail untuk Email Notifications](#6-setup-gmail-untuk-email-notifications)
@@ -107,55 +107,34 @@ Anda harus melihat 4 tables:
 
 ---
 
-## 3. Install OLLAMA AI
+## 3. Setup Google Gemini AI
 
-OLLAMA adalah Local LLM yang digunakan untuk natural language processing.
+Google Gemini adalah AI generatif dari Google yang digunakan untuk natural language processing.
 
-### Windows
+### Dapatkan API Key (Gratis!)
 
-1. Download dari https://ollama.ai/download
-2. Jalankan installer
-3. Setelah install, buka Command Prompt atau PowerShell
+1. Buka [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Login dengan Google Account Anda
+3. Klik **"Get API Key"** atau **"Create API Key"**
+4. Pilih project atau buat project baru
+5. Copy API Key yang diberikan
+6. **Simpan API key ini**, akan digunakan di `.env`
 
-### macOS
+### Keuntungan Gemini
 
-```bash
-curl https://ollama.ai/install.sh | sh
-```
+✅ **Tidak perlu install apapun** - Cuma butuh API key  
+✅ **Cross-platform** - Jalan di Windows, Mac, Linux  
+✅ **Gratis dengan quota besar** - 60 requests/menit, 1500 requests/hari  
+✅ **Akurasi tinggi** - Sangat bagus untuk Bahasa Indonesia  
+✅ **Cepat** - Response time lebih cepat dari local LLM  
 
-### Linux
+### API Quota (Gratis)
 
-```bash
-curl https://ollama.ai/install.sh | sh
-```
+- ✅ 60 requests per minute
+- ✅ 1500 requests per day
+- ✅ Lebih dari cukup untuk bot booking venue
 
-### Pull Model Llama2
-
-```bash
-ollama pull llama2
-```
-
-Tunggu hingga download selesai (sekitar 3.8GB).
-
-### Jalankan OLLAMA Server
-
-```bash
-ollama serve
-```
-
-Server akan running di `http://localhost:11434`
-
-### Test OLLAMA
-
-Buka terminal baru dan test:
-
-```bash
-curl http://localhost:11434/api/tags
-```
-
-Anda harus melihat list model yang terinstall termasuk `llama2`.
-
-**Catatan**: Bot tetap bisa berjalan tanpa OLLAMA. Jika OLLAMA tidak tersedia, bot akan menggunakan rule-based intent extraction.
+**Catatan**: Bot tetap bisa berjalan tanpa Gemini AI. Jika Gemini tidak tersedia, bot akan menggunakan rule-based intent extraction.
 
 ---
 
@@ -287,9 +266,8 @@ TELEGRAM_BOT_TOKEN=123456789:ABCdefGHIjklMNOpqrsTUVwxyz
 # Google Places API (dari Google Cloud Console)
 GOOGLE_PLACES_API_KEY=AIzaSyABC123def456GHI789jkl
 
-# OLLAMA AI (default jika install local)
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama2
+# Google Gemini AI (dari Google AI Studio)
+GEMINI_API_KEY=AIzaSyXYZ123abc456def789ghi
 
 # MySQL Database (XAMPP default)
 DB_HOST=localhost
@@ -378,7 +356,7 @@ Checklist untuk memastikan semua sudah setup dengan benar:
 - [ ] XAMPP MySQL running
 - [ ] Database `sports_venue_booking` sudah dibuat
 - [ ] Tables sudah diimport (users, bookings, venues_cache, conversation_states)
-- [ ] OLLAMA AI terinstall dan model llama2 sudah di-pull (optional)
+- [ ] Google Gemini API Key sudah didapat dari Google AI Studio
 - [ ] Telegram Bot Token sudah didapat dari BotFather
 - [ ] Google Places API Key sudah didapat dan enabled
 - [ ] Gmail App Password sudah dibuat

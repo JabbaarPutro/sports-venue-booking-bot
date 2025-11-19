@@ -48,8 +48,7 @@ Panduan lengkap untuk deploy Sports Venue Booking Bot ke production.
 - [ ] MySQL database (atau MySQL hosting)
 - [ ] Domain name (optional tapi recommended)
 - [ ] SSL certificate (optional, untuk webhooks)
-- [ ] All API keys ready (Telegram, Google Places, Email)
-- [ ] OLLAMA model downloaded (atau skip jika tidak menggunakan)
+- [ ] All API keys ready (Telegram, Google Places, Google Gemini, Email)
 
 ### ✅ Environment Preparation
 
@@ -137,20 +136,6 @@ EXIT;
 sudo npm install -g pm2
 ```
 
-#### Install OLLAMA (Optional)
-
-```bash
-# Install OLLAMA
-curl https://ollama.ai/install.sh | sh
-
-# Pull model
-ollama pull llama2
-
-# Run as service
-sudo systemctl enable ollama
-sudo systemctl start ollama
-```
-
 ### Step 3: Deploy Application
 
 #### Clone Repository
@@ -179,8 +164,7 @@ Edit `.env` dengan production values:
 ```env
 TELEGRAM_BOT_TOKEN=your_production_token
 GOOGLE_PLACES_API_KEY=your_api_key
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama2
+GEMINI_API_KEY=your_gemini_api_key
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=botuser
@@ -325,9 +309,6 @@ Create `Dockerfile`:
 
 ```dockerfile
 FROM node:18-alpine
-
-# Install OLLAMA (optional)
-# RUN curl https://ollama.ai/install.sh | sh
 
 WORKDIR /app
 
@@ -627,17 +608,20 @@ sudo mkswap /swapfile
 sudo swapon /swapfile
 ```
 
-### OLLAMA Issues
+### Gemini API Issues
 
 ```bash
-# Check OLLAMA status
-systemctl status ollama
+# Check if API key is set
+grep GEMINI_API_KEY .env
 
-# Restart OLLAMA
-sudo systemctl restart ollama
+# Test API key manually
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"contents":[{"parts":[{"text":"test"}]}]}' \
+  "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=YOUR_API_KEY"
 
-# Test OLLAMA
-curl http://localhost:11434/api/tags
+# Check bot logs for Gemini errors
+pm2 logs sports-bot | grep -i gemini
 ```
 
 ---

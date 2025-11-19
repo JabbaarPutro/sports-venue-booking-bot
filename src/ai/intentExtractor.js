@@ -1,24 +1,24 @@
-const OllamaClient = require('./ollamaClient');
+const GeminiClient = require('./geminiClient');
 const DateParser = require('../utils/dateParser');
 const Logger = require('../utils/logger');
 const sportsConfig = require('../../config/sports.json');
 
 class IntentExtractor {
     constructor() {
-        this.ollama = new OllamaClient();
+        this.gemini = new GeminiClient();
     }
 
     async extractIntent(message) {
         Logger.info('Extracting intent from message:', message);
 
-        // Try OLLAMA first
-        const ollamaAvailable = await this.ollama.isAvailable();
+        // Try Gemini first
+        const geminiAvailable = await this.gemini.isAvailable();
         
-        if (ollamaAvailable) {
+        if (geminiAvailable) {
             try {
-                return await this.extractWithOllama(message);
+                return await this.extractWithGemini(message);
             } catch (error) {
-                Logger.warn('OLLAMA extraction failed, falling back to rule-based:', error.message);
+                Logger.warn('Gemini extraction failed, falling back to rule-based:', error.message);
             }
         }
 
@@ -26,7 +26,7 @@ class IntentExtractor {
         return this.extractWithRules(message);
     }
 
-    async extractWithOllama(message) {
+    async extractWithGemini(message) {
         const sportsNames = sportsConfig.sports.map(s => s.name).join(', ');
         
         const prompt = `
@@ -45,7 +45,7 @@ Examples:
 Return only valid JSON without explanation.
 `;
 
-        const result = await this.ollama.extractJSON(prompt);
+        const result = await this.gemini.extractJSON(prompt);
         
         if (result) {
             return this.validateAndEnrichIntent(result);
