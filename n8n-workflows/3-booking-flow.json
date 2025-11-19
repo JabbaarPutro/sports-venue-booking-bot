@@ -1,0 +1,140 @@
+{
+  "name": "3. Booking Flow & Payment",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Booking Request",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO bookings (user_id, venue_place_id, venue_name, sport_type, booking_date, booking_time, status) VALUES (?, ?, ?, ?, ?, ?, 'confirmed')",
+        "options": {}
+      },
+      "name": "Create Booking",
+      "type": "n8n-nodes-base.mysql",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "mysql": {
+          "id": "1",
+          "name": "MySQL XAMPP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://maps.googleapis.com/maps/api/place/details/json",
+        "options": {
+          "queryParametersUi": {
+            "parameter": [
+              {
+                "name": "place_id",
+                "value": "={{$json.place_id}}"
+              },
+              {
+                "name": "fields",
+                "value": "name,formatted_phone_number,website"
+              },
+              {
+                "name": "key",
+                "value": "={{$env.GOOGLE_PLACES_API_KEY}}"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Get Venue Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.telegram_id}}",
+        "text": "=✅ Booking confirmed!\\n\\nVenue: {{$json.venue_name}}\\nContact: {{$json.phone}}\\n\\nPlease contact venue for payment details.",
+        "additionalFields": {}
+      },
+      "name": "Send Telegram Confirmation",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{$env.EMAIL_USER}}",
+        "toEmail": "={{$json.email}}",
+        "subject": "Booking Confirmation",
+        "text": "=Your booking at {{$json.venue_name}} has been confirmed!",
+        "options": {}
+      },
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [850, 450],
+      "credentials": {
+        "smtp": {
+          "id": "1",
+          "name": "Gmail SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Booking Request": {
+      "main": [
+        [
+          {
+            "node": "Create Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Booking": {
+      "main": [
+        [
+          {
+            "node": "Get Venue Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Venue Details": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Confirmation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "3",
+  "meta": {
+    "instanceId": "sports-venue-booking-bot"
+  },
+  "tags": []
+}

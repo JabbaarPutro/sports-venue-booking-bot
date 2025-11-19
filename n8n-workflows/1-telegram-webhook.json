@@ -1,0 +1,66 @@
+{
+  "name": "1. Telegram Webhook Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "telegram-bot-webhook"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract message from Telegram webhook\nconst body = $input.item.json.body;\n\nif (body.message) {\n  return {\n    telegram_id: body.message.from.id,\n    username: body.message.from.username,\n    text: body.message.text,\n    chat_id: body.message.chat.id\n  };\n}\n\nreturn {};"
+      },
+      "name": "Parse Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/process-message",
+        "options": {
+          "bodyContentType": "json"
+        }
+      },
+      "name": "Send to Bot API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Bot API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "id": "1",
+  "meta": {
+    "instanceId": "sports-venue-booking-bot"
+  },
+  "tags": []
+}

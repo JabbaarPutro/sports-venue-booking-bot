@@ -1,0 +1,193 @@
+{
+  "name": "4. Reminder Notifications",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "name": "Schedule Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT b.*, u.telegram_id, u.email FROM bookings b JOIN users u ON b.user_id = u.id WHERE b.status = 'confirmed' AND CONCAT(b.booking_date, ' ', b.booking_time) BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 24 HOUR) AND b.reminder_24h_sent = FALSE",
+        "options": {}
+      },
+      "name": "Get 24h Reminders",
+      "type": "n8n-nodes-base.mysql",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "mysql": {
+          "id": "1",
+          "name": "MySQL XAMPP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT b.*, u.telegram_id, u.email FROM bookings b JOIN users u ON b.user_id = u.id WHERE b.status = 'confirmed' AND CONCAT(b.booking_date, ' ', b.booking_time) BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 3 HOUR) AND b.reminder_3h_sent = FALSE",
+        "options": {}
+      },
+      "name": "Get 3h Reminders",
+      "type": "n8n-nodes-base.mysql",
+      "typeVersion": 1,
+      "position": [450, 450],
+      "credentials": {
+        "mysql": {
+          "id": "1",
+          "name": "MySQL XAMPP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.telegram_id}}",
+        "text": "=⏰ Reminder: Your booking at {{$json.venue_name}} is in 24 hours!\\n\\nDate: {{$json.booking_date}}\\nTime: {{$json.booking_time}}",
+        "additionalFields": {}
+      },
+      "name": "Send 24h Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.telegram_id}}",
+        "text": "=⏰ Reminder: Your booking at {{$json.venue_name}} is in 3 hours!\\n\\nDate: {{$json.booking_date}}\\nTime: {{$json.booking_time}}\\n\\nDon't forget!",
+        "additionalFields": {}
+      },
+      "name": "Send 3h Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [650, 450],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "Telegram Bot API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE bookings SET reminder_24h_sent = TRUE WHERE id = {{$json.id}}",
+        "options": {}
+      },
+      "name": "Mark 24h Sent",
+      "type": "n8n-nodes-base.mysql",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "credentials": {
+        "mysql": {
+          "id": "1",
+          "name": "MySQL XAMPP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE bookings SET reminder_3h_sent = TRUE WHERE id = {{$json.id}}",
+        "options": {}
+      },
+      "name": "Mark 3h Sent",
+      "type": "n8n-nodes-base.mysql",
+      "typeVersion": 1,
+      "position": [850, 450],
+      "credentials": {
+        "mysql": {
+          "id": "1",
+          "name": "MySQL XAMPP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Every Hour": {
+      "main": [
+        [
+          {
+            "node": "Get 24h Reminders",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get 3h Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 24h Reminders": {
+      "main": [
+        [
+          {
+            "node": "Send 24h Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 3h Reminders": {
+      "main": [
+        [
+          {
+            "node": "Send 3h Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send 24h Telegram": {
+      "main": [
+        [
+          {
+            "node": "Mark 24h Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send 3h Telegram": {
+      "main": [
+        [
+          {
+            "node": "Mark 3h Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1",
+  "id": "4",
+  "meta": {
+    "instanceId": "sports-venue-booking-bot"
+  },
+  "tags": []
+}
